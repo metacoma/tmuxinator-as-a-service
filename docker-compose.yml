@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  ttyd:
+    build: ./
+    image: ttyd:latest
+    expose:
+      - 7681
+    entrypoint:
+      - /sbin/tini
+      - --
+      - ttyd
+      - --url-arg 
+      - /bin/sh -c
+    ports:
+      - 0.0.0.0:420:7681
