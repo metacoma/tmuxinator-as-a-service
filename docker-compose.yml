@@ -6,11 +6,17 @@ services:
     image: ttyd:latest
     expose:
       - 7681
+    environment:
+      T_CONF_DIR: /root/.config/tmuxinator
+      EDITOR: vim
+    volumes:
+      - ~/.config/tmuxinator/:/root/.config/tmuxinator/
+      - ~/.ssh:/root/.ssh
+      - ./files/default.yml:/root/.config/tmuxinator/default.yml
+      - ./files/vimrc:/root/.vimrc
     entrypoint:
-      - /sbin/tini
-      - --
       - ttyd
-      - --url-arg 
-      - /bin/sh -c
+      - --url-arg
+      - /usr/local/bin/tmuxinator.sh
     ports:
-      - 0.0.0.0:420:7681
+      - 0.0.0.0:80:7681
