@@ -14,6 +14,7 @@ services:
       - ~/.ssh:/root/.ssh
       - ./files/default.yml:/root/.config/tmuxinator/default.yml
       - ./files/vimrc:/root/.vimrc
+      - ./files/tmux.conf:/root/.tmux.conf
     entrypoint:
       - ttyd
       - --url-arg
