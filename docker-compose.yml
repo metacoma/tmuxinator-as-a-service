@@ -1,7 +1,7 @@
-version: '3'
+version: '3.7'
 
 services:
-  ttyd:
+  ttyd0:
     build: ./
     image: ttyd:latest
     expose:
@@ -9,15 +9,51 @@ services:
     environment:
       T_CONF_DIR: /root/.config/tmuxinator
       EDITOR: vim
+      TUNNEL_ENDPOINT: http://wssproxy:4444
+      API_ENDPOINT: http://wssproxy:80 
     volumes:
       - ~/.config/tmuxinator/:/root/.config/tmuxinator/
       - ~/.ssh:/root/.ssh
-      - ./files/default.yml:/root/.config/tmuxinator/default.yml
-      - ./files/vimrc:/root/.vimrc
-      - ./files/tmux.conf:/root/.tmux.conf
-    entrypoint:
-      - ttyd
-      - --url-arg
-      - /usr/local/bin/tmuxinator.sh
+      - ./files/ttyd/default.yml:/root/.config/tmuxinator/default.yml
+      - ./files/ttyd/vimrc:/root/.vimrc
+      - ./files/ttyd/tmux.conf:/root/.tmux.conf
+    depends_on:
+      - wssproxy
+  ttyd1:
+    build: ./
+    image: ttyd:latest
+    expose:
+      - 7681
+    environment:
+      T_CONF_DIR: /root/.config/tmuxinator
+      EDITOR: vim
+      TUNNEL_ENDPOINT: http://wssproxy:4444
+      API_ENDPOINT: http://wssproxy:80 
+    volumes:
+      - ~/.config/tmuxinator/:/root/.config/tmuxinator/
+      - ~/.ssh:/root/.ssh
+      - ./files/ttyd/default.yml:/root/.config/tmuxinator/default.yml
+      - ./files/ttyd/vimrc:/root/.vimrc
+      - ./files/ttyd/tmux.conf:/root/.tmux.conf
+    depends_on:
+      - wssproxy
+
+  wssproxy:
+    build: 
+      context: .
+      dockerfile: wssproxy.Dockerfile 
+    image: wssproxy:latest
+    expose:
+      - 80
+    volumes:
+      - type: bind
+        source: ./files/wssproxy/openresty/nginx/conf.d/
+        target: /etc/nginx/conf.d/
+      - type: bind
+        source: ./files/wssproxy/nginx.conf
+        target: /usr/local/openresty/nginx/conf/nginx.conf
+      - type: bind
+        source: ./files/wssproxy/sandbox
+        target: /sandbox
     ports:
-      - 0.0.0.0:80:7681
+      - 0.0.0.0:80:80
